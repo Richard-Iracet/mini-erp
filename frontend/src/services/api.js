@@ -1,8 +1,16 @@
 import axios from "axios";
 import authService from "./authService";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
+if (!API_URL) {
+  throw new Error(
+    "VITE_API_URL não definido. Configure nas Environment Variables da Vercel."
+  );
+}
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3001",
+  baseURL: API_URL,
 });
 
 api.interceptors.request.use(
