@@ -1,20 +1,10 @@
-const API_URL = "http://localhost:3001";
+import { api } from "./api";
 
 async function login(email, senha) {
   try {
-    const response = await fetch(`${API_URL}/auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, senha }),
-    });
+    const response = await api.post("/auth/login", { email, senha });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.erro || "Erro ao fazer login");
-    }
+    const data = response.data;
 
     if (!data.token) {
       throw new Error("Token não recebido do backend");
@@ -29,6 +19,11 @@ async function login(email, senha) {
     return data;
   } catch (error) {
     console.error("Erro no login (frontend):", error);
+
+    if (error.response?.data?.erro) {
+      throw new Error(error.response.data.erro);
+    }
+
     throw error;
   }
 }
