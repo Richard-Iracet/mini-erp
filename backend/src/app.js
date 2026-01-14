@@ -3,17 +3,25 @@ const cors = require("cors");
 
 const app = express();
 
-const allowedOrigins = ["http://localhost:5173", "http://localhost:3000"];
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  process.env.FRONTEND_URL,
+].filter(Boolean);
 
 app.use(
   cors({
     origin: function (origin, callback) {
       if (!origin) return callback(null, true);
 
-      if (allowedOrigins.includes(origin)) {
+      const isVercel =
+        origin.endsWith(".vercel.app") || origin === "https://vercel.app";
+
+      if (allowedOrigins.includes(origin) || isVercel) {
         return callback(null, true);
       }
 
+      console.log("CORS bloqueado:", origin);
       return callback(new Error("CORS bloqueado: origem não permitida"));
     },
     credentials: true,
