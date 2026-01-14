@@ -1,0 +1,62 @@
+/* layout.css — layout estrutural */
+
+/* Páginas */
+.page-crud,
+.page-dashboard {
+  padding: var(--space-6);
+  display: grid;
+  gap: var(--space-5);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Topbars */
+.pagamentos-topbar,
+.responsaveis-topbar,
+.turmas-topbar,
+.inadimplentes-topbar,
+.alunas-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* Cards com conteúdo mais simples */
+.dashboard-welcome,
+.dashboard-periodo,
+.dashboard-inadimplentes,
+.dashboard-resumo,
+.dashboard-grafico {
+  margin-bottom: 0;
+}
+
+/* Grid cards */
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-4);
+}
+
+/* Ajuda (grid) */
+.relatorios-metricas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-4);
+}
+
+/* Ajuste mobile */
+@media (max-width: 900px) {
+  .page-crud,
+  .page-dashboard {
+    padding: 18px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  .modal-content {
+    max-height: 88vh;
+  }
+}

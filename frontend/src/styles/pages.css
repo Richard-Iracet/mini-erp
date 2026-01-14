@@ -1,0 +1,527 @@
+/* LOGIN */
+.page-login {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: radial-gradient(
+      circle at 20% 20%,
+      rgba(209, 107, 165, 0.25) 0%,
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 90% 10%,
+      rgba(116, 75, 162, 0.18) 0%,
+      transparent 45%
+    ),
+    linear-gradient(180deg, var(--bg) 0%, rgba(250, 247, 251, 0.55) 100%);
+}
+
+:root[data-theme="dark"] .page-login {
+  background: radial-gradient(
+      circle at 20% 20%,
+      rgba(209, 107, 165, 0.18) 0%,
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 90% 10%,
+      rgba(116, 75, 162, 0.16) 0%,
+      transparent 45%
+    ),
+    linear-gradient(180deg, #0f0e13 0%, #11101a 100%);
+}
+
+.login-container {
+  width: 100%;
+  max-width: 980px;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 20px;
+  align-items: center;
+}
+
+.login-left {
+  padding: 20px 10px;
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.login-logo {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  border-radius: 14px;
+}
+
+.login-title {
+  font-weight: 900;
+  font-size: 28px;
+  line-height: 1.1;
+}
+
+.login-subtitle {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.login-hero {
+  margin-top: 24px;
+}
+
+.login-hero-title {
+  margin: 0;
+  font-size: 38px;
+  font-weight: 900;
+  letter-spacing: -1px;
+}
+
+.login-hero-text {
+  margin-top: 10px;
+  max-width: 460px;
+  color: var(--muted);
+  font-size: var(--text-md);
+  line-height: 1.6;
+}
+
+.login-tags {
+  margin-top: 18px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.login-tag {
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: var(--radius-pill);
+  font-weight: 900;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.login-tag-pagamentos {
+  background: rgba(209, 107, 165, 0.12);
+  border-color: rgba(209, 107, 165, 0.18);
+}
+
+.login-tag-relatorios {
+  background: rgba(116, 75, 162, 0.1);
+  border-color: rgba(116, 75, 162, 0.16);
+}
+
+.login-tag-alunas {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+:root[data-theme="dark"] .login-tag-alunas {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Form login */
+.login-form {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 26px;
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(12px);
+}
+
+.login-form-title {
+  font-weight: 900;
+  font-size: 20px;
+}
+
+.login-form-subtitle {
+  margin-top: 6px;
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+
+.login-error {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 0, 0, 0.08);
+  border: 1px solid rgba(255, 0, 0, 0.16);
+  color: #b00020;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.login-fields {
+  margin-top: 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.login-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 900;
+  margin-bottom: 6px;
+  color: var(--muted);
+}
+
+.login-input {
+  height: var(--control-h-lg);
+}
+
+.login-submit {
+  margin-top: 6px;
+  min-height: var(--control-h-lg);
+  font-size: var(--text-md);
+}
+
+.login-footer {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .login-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* DASHBOARD */
+.dashboard-welcome-text,
+.dashboard-periodo-text,
+.dashboard-legenda,
+.dashboard-dica,
+.dashboard-empty,
+.dashboard-loading,
+.dashboard-grafico-msg {
+  margin-top: 10px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.dashboard-numero {
+  font-size: 26px;
+  font-weight: 900;
+  margin-top: 10px;
+}
+
+.dashboard-numero-pago {
+  color: var(--green);
+}
+
+.dashboard-numero-pendente {
+  color: var(--red);
+}
+
+.dashboard-resumo-grid {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.dashboard-resumo-label {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.dashboard-resumo-value {
+  font-size: 18px;
+  font-weight: 900;
+}
+
+/* ALUNAS */
+.alunas-card-nova {
+  max-width: 520px;
+}
+
+.alunas-dica-responsavel {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.alunas-turmas {
+  display: grid;
+  gap: 4px;
+}
+
+.alunas-turma-item {
+  font-size: 12px;
+}
+
+.alunas-turma-horario {
+  opacity: 0.8;
+  color: var(--muted);
+}
+
+.alunas-sem-turma {
+  opacity: 0.75;
+  color: var(--muted);
+}
+
+.alunas-acoes {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* INADIMPLENTES */
+.inadimplentes-filtros-row,
+.pagamentos-filtros-row,
+.relatorios-filtro-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.inadimplentes-input-mes,
+.pagamentos-input-mes,
+.relatorios-input-mes {
+  max-width: 120px;
+}
+
+.inadimplentes-input-ano,
+.pagamentos-input-ano,
+.relatorios-input-ano {
+  max-width: 150px;
+}
+
+.inadimplentes-periodo,
+.relatorios-periodo {
+  margin-top: 10px;
+  opacity: 0.8;
+  font-size: 13px;
+}
+
+.inadimplentes-acoes {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.inadimplentes-detalhe-resumo {
+  margin-top: 12px;
+  opacity: 0.9;
+  font-size: 14px;
+}
+
+.inadimplentes-ajuda-conteudo {
+  margin-top: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.inadimplentes-ajuda-item p {
+  margin-top: 6px;
+  opacity: 0.85;
+  line-height: 1.5;
+}
+
+/* PAGAMENTOS */
+.pagamentos-gerar,
+.pagamentos-manual {
+  max-width: 540px;
+}
+
+.pagamentos-resumo-grid {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.pagamentos-resumo-label {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.pagamentos-resumo-value {
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.pagamentos-resumo-dica,
+.pagamentos-tabela-dica {
+  margin-top: 12px;
+  opacity: 0.8;
+  font-size: 13px;
+}
+
+.pagamentos-acoes {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* RESPONSAVEIS */
+.responsaveis-novo {
+  max-width: 700px;
+}
+
+.responsaveis-form {
+  display: grid;
+  gap: 10px;
+}
+
+.responsaveis-grid-2 {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.responsaveis-grid-2 > * {
+  flex: 1;
+  min-width: 220px;
+}
+
+.responsaveis-grid-uf-cep {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.responsaveis-grid-uf-cep input:first-child {
+  width: 90px;
+  flex: none;
+}
+
+.responsaveis-grid-uf-cep input:last-child {
+  flex: 1;
+  min-width: 200px;
+}
+
+.responsaveis-form-actions,
+.responsaveis-acoes {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.responsaveis-alunas {
+  display: grid;
+  gap: 4px;
+}
+
+.responsaveis-aluna-item {
+  font-size: 12px;
+}
+
+.responsaveis-aluna-status {
+  opacity: 0.8;
+  color: var(--muted);
+}
+
+.responsaveis-sem-aluna {
+  opacity: 0.75;
+  color: var(--muted);
+}
+
+.responsaveis-detalhe {
+  margin-top: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+/* TURMAS */
+.turmas-nova {
+  max-width: 520px;
+}
+
+.turmas-form {
+  display: grid;
+  gap: 10px;
+}
+
+.turmas-acoes {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.turmas-qtd-alunas {
+  text-align: center;
+}
+
+.turmas-dica {
+  margin-top: 16px;
+  opacity: 0.8;
+  font-size: 13px;
+}
+
+.turmas-modal-subtitle {
+  margin-top: 6px;
+  opacity: 0.8;
+}
+
+.turmas-modal-alunas {
+  max-width: 760px;
+}
+
+.turmas-modal-editar {
+  max-width: 560px;
+}
+
+.turmas-editar-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+/* RELATORIOS */
+.relatorios-title {
+  animation: fadeUp 0.4s ease;
+}
+
+.relatorios-exportacao-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.relatorios-exportacao-dica {
+  margin-top: 10px;
+  opacity: 0.8;
+  font-size: 13px;
+}
+
+.relatorios-metrica-value {
+  font-size: 22px;
+  font-weight: 900;
+  margin-top: 10px;
+}
+
+.relatorios-metrica-pago {
+  color: var(--green);
+}
+
+.relatorios-metrica-pendente {
+  color: var(--red);
+}
+
+.relatorios-metrica-taxa {
+  color: var(--text);
+}
+
+.relatorios-empty {
+  color: var(--muted);
+}
+
+/* Animations */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
