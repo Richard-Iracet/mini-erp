@@ -40,6 +40,10 @@ export default function Pagamentos() {
     setToast((t) => ({ ...t, show: false }));
   }
 
+  function turmaLabel(t) {
+    return `${t.nome} — ${t.dia_semana} ${t.horario}`;
+  }
+
   function carregarPagamentos(filtros = {}) {
     api
       .get("/pagamentos", { params: filtros })
@@ -326,7 +330,7 @@ export default function Pagamentos() {
             <option value="">Todas as turmas</option>
             {turmas.map((t) => (
               <option key={t.id} value={t.id}>
-                {t.nome}
+                {turmaLabel(t)}
               </option>
             ))}
           </select>
@@ -375,7 +379,7 @@ export default function Pagamentos() {
               <option value="">Todas as turmas</option>
               {turmas.map((t) => (
                 <option key={t.id} value={t.id}>
-                  {t.nome}
+                  {turmaLabel(t)}
                 </option>
               ))}
             </select>
@@ -422,7 +426,7 @@ export default function Pagamentos() {
               <option value="">Selecione a turma</option>
               {turmas.map((t) => (
                 <option key={t.id} value={t.id}>
-                  {t.nome}
+                  {turmaLabel(t)}
                 </option>
               ))}
             </select>
