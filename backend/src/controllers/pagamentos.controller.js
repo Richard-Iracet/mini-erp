@@ -340,7 +340,7 @@ async function atualizarMetodoPagamento(req, res) {
 }
 
 async function gerarPagamentosDoMes(req, res) {
-  let { mes, ano } = req.body;
+  let { mes, ano, turma_id, valor_override } = req.body;
 
   if (!mes || !ano) {
     return res.status(400).json({
@@ -359,6 +359,28 @@ async function gerarPagamentosDoMes(req, res) {
     return res.status(400).json({ erro: "mes precisa estar entre 1 e 12" });
   }
 
+  if (turma_id !== undefined && turma_id !== null && turma_id !== "") {
+    turma_id = Number(turma_id);
+    if (Number.isNaN(turma_id)) {
+      return res.status(400).json({ erro: "turma_id inválido" });
+    }
+  } else {
+    turma_id = null;
+  }
+
+  if (
+    valor_override !== undefined &&
+    valor_override !== null &&
+    valor_override !== ""
+  ) {
+    valor_override = Number(valor_override);
+    if (Number.isNaN(valor_override) || valor_override < 0) {
+      return res.status(400).json({ erro: "valor_override inválido" });
+    }
+  } else {
+    valor_override = null;
+  }
+
   try {
     const metodoPadrao = "pix";
 
@@ -367,13 +389,17 @@ async function gerarPagamentosDoMes(req, res) {
         SELECT
           at.aluna_id,
           at.turma_id,
-          t.valor_mensal AS valor_original,
+          CASE
+            WHEN $5::numeric IS NOT NULL THEN $5::numeric
+            ELSE t.valor_mensal
+          END AS valor_original,
           a.responsavel_id
         FROM alunas_turmas at
         JOIN turmas t ON t.id = at.turma_id
         JOIN alunas a ON a.id = at.aluna_id
         WHERE at.ativo = true
           AND a.ativo = true
+          AND ($6::int IS NULL OR at.turma_id = $6::int)
           AND NOT EXISTS (
             SELECT 1
             FROM pagamentos p
@@ -420,12 +446,26 @@ async function gerarPagamentosDoMes(req, res) {
       ano,
       metodoPadrao,
       DESCONTO_IRMAOS,
+      valor_override,
+      turma_id,
     ]);
+
+    let turma_nome = null;
+    if (turma_id) {
+      const { rows } = await pool.query(
+        `SELECT nome FROM turmas WHERE id = $1`,
+        [turma_id]
+      );
+      turma_nome = rows[0]?.nome || null;
+    }
 
     return res.json({
       mensagem: "Pagamentos gerados com sucesso",
       mes,
       ano,
+      turma_id,
+      turma_nome,
+      valor_override,
       quantidade: result.rowCount,
       pagamentos: result.rows,
     });
