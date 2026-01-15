@@ -239,7 +239,6 @@ export default function Turmas() {
           <table className="turmas-table">
             <thead>
               <tr>
-                <th>ID</th>
                 <th>Nome</th>
                 <th>Dia</th>
                 <th>Horário</th>
@@ -252,7 +251,6 @@ export default function Turmas() {
             <tbody>
               {turmas.map((t) => (
                 <tr key={t.id}>
-                  <td>{t.id}</td>
                   <td>{t.nome}</td>
                   <td>{t.dia_semana}</td>
                   <td>{t.horario}</td>
