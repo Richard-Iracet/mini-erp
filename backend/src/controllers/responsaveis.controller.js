@@ -322,33 +322,6 @@ async function importarFormsCSV(req, res) {
     for (let r = 1; r < rows.length; r++) {
       const row = rows[r];
 
-      const formsTimestamp = getColMulti(headerIndex, row, [
-        "Carimbo de data/hora",
-        "Carimbo de data/hora:",
-        "Timestamp",
-        "Timestamp:",
-      ]).trim();
-
-      if (!formsTimestamp) {
-        ignorados++;
-        continue;
-      }
-
-      const tsInsert = await pool.query(
-        `
-        INSERT INTO imports_forms (forms_timestamp)
-        VALUES ($1)
-        ON CONFLICT (forms_timestamp) DO NOTHING
-        RETURNING id
-        `,
-        [formsTimestamp]
-      );
-
-      if (tsInsert.rows.length === 0) {
-        ignorados++;
-        continue;
-      }
-
       const alunaNome = getColMulti(headerIndex, row, [
         "Nome completo da bailarina (o):",
         "Nome completo da bailarina (o)",
@@ -528,7 +501,7 @@ async function importarFormsCSV(req, res) {
     await pool.query("COMMIT");
 
     return res.json({
-      mensagem: "Importação concluída (sem duplicação)",
+      mensagem: "Importação concluída",
       responsaveisCriados,
       responsaveisAtualizados,
       alunasCriadas,
