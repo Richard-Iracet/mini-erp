@@ -50,14 +50,6 @@ export default function Navbar() {
           </Link>
 
           <Link
-            to="/alunas"
-            className={`sidebar-link ${isActive("/alunas") ? "active" : ""}`}
-            onClick={closeMenu}
-          >
-            Alunas
-          </Link>
-
-          <Link
             to="/responsaveis"
             className={`sidebar-link ${
               isActive("/responsaveis") ? "active" : ""
@@ -65,6 +57,14 @@ export default function Navbar() {
             onClick={closeMenu}
           >
             Responsáveis
+          </Link>
+
+          <Link
+            to="/alunas"
+            className={`sidebar-link ${isActive("/alunas") ? "active" : ""}`}
+            onClick={closeMenu}
+          >
+            Alunas
           </Link>
 
           <Link
