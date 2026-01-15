@@ -10,6 +10,8 @@ export default function Dashboard() {
   const [turmas, setTurmas] = useState([]);
   const [responsaveis, setResponsaveis] = useState([]);
 
+  const [aniversariantes, setAniversariantes] = useState([]);
+
   const [loading, setLoading] = useState(true);
 
   const hoje = useMemo(() => new Date(), []);
@@ -23,14 +25,21 @@ export default function Dashboard() {
       try {
         setLoading(true);
 
-        const [resFinanceiro, resCompleto, resAlunas, resTurmas, resResp] =
-          await Promise.all([
-            api.get("/relatorios/financeiro", { params: { mes, ano } }),
-            api.get("/relatorios/completo", { params: { mes, ano } }),
-            api.get("/alunas"),
-            api.get("/turmas"),
-            api.get("/responsaveis"),
-          ]);
+        const [
+          resFinanceiro,
+          resCompleto,
+          resAlunas,
+          resTurmas,
+          resResp,
+          resAnivers,
+        ] = await Promise.all([
+          api.get("/relatorios/financeiro", { params: { mes, ano } }),
+          api.get("/relatorios/completo", { params: { mes, ano } }),
+          api.get("/alunas"),
+          api.get("/turmas"),
+          api.get("/responsaveis"),
+          api.get("/alunas/aniversariantes", { params: { mes } }),
+        ]);
 
         if (!ativo) return;
 
@@ -40,6 +49,7 @@ export default function Dashboard() {
         setAlunas(Array.isArray(resAlunas.data) ? resAlunas.data : []);
         setTurmas(Array.isArray(resTurmas.data) ? resTurmas.data : []);
         setResponsaveis(Array.isArray(resResp.data) ? resResp.data : []);
+        setAniversariantes(Array.isArray(resAnivers.data) ? resAnivers.data : []);
       } catch (err) {
         console.error(err);
       } finally {
@@ -78,6 +88,18 @@ export default function Dashboard() {
       "Dezembro",
     ];
     return meses[m - 1] || `Mês ${m}`;
+  }
+
+  function formatarDiaMes(data) {
+    if (!data) return "";
+    try {
+      const d = new Date(data);
+      const dia = String(d.getDate()).padStart(2, "0");
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      return `${dia}/${mm}`;
+    } catch {
+      return "";
+    }
   }
 
   const periodo = `${nomeMes(mes)}/${ano}`;
@@ -248,6 +270,14 @@ export default function Dashboard() {
             Total pendente: <b>{formatMoney(operacional.total_pendente)}</b>
           </p>
         </div>
+
+        <div className="card dashboard-card">
+          <h2>Aniversariantes</h2>
+          <p className="dashboard-numero">{aniversariantes.length}</p>
+          <p className="dashboard-legenda">
+            Total no mês de <b>{nomeMes(mes)}</b>
+          </p>
+        </div>
       </div>
 
       <div className="card dashboard-inadimplentes">
@@ -285,6 +315,39 @@ export default function Dashboard() {
         )}
 
         <p className="dashboard-dica">Dica: copie e cole direto no WhatsApp.</p>
+      </div>
+
+      <div className="card dashboard-aniversariantes">
+        <h2>Aniversariantes do mês</h2>
+
+        {aniversariantes.length === 0 ? (
+          <p className="dashboard-empty">Nenhuma aniversariante este mês.</p>
+        ) : (
+          <table className="dashboard-table">
+            <thead>
+              <tr>
+                <th>Aluna</th>
+                <th>Data</th>
+                <th>Responsável</th>
+                <th>Telefone</th>
+              </tr>
+            </thead>
+            <tbody>
+              {aniversariantes.map((a) => (
+                <tr key={a.id}>
+                  <td>{a.nome}</td>
+                  <td>{formatarDiaMes(a.data_nascimento)}</td>
+                  <td>{a.responsavel_nome || "Sem responsável"}</td>
+                  <td>
+                    {a.responsavel_telefone1 ||
+                      a.responsavel_telefone2 ||
+                      "-"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       <div className="card dashboard-resumo">
