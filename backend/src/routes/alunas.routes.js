@@ -10,9 +10,11 @@ const {
   buscarAluna,
   atualizarAluna,
   deletarAluna,
+  aniversariantesMes,
 } = require("../controllers/alunas.controller");
 
 router.get("/", auth, listarAlunas);
+router.get("/aniversariantes", auth, aniversariantesMes);
 router.get("/:id", auth, buscarAluna);
 
 router.post("/", auth, adminOnly, criarAluna);
