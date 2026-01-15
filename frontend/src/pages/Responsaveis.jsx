@@ -28,6 +28,8 @@ export default function Responsaveis() {
 
   const [modalAjuda, setModalAjuda] = useState(false);
 
+  const [loadingImport, setLoadingImport] = useState(false);
+
   const [toast, setToast] = useState({
     show: false,
     message: "",
@@ -181,19 +183,56 @@ export default function Responsaveis() {
       });
   }
 
+  async function importarDoForms() {
+    const ok = window.confirm(
+      "Importar responsáveis e alunas do Google Forms? (Não irá duplicar)"
+    );
+    if (!ok) return;
+
+    try {
+      setLoadingImport(true);
+
+      const res = await api.post("/responsaveis/importar-forms");
+
+      const msg = res?.data?.mensagem || `Importação concluída.`;
+
+      showToast(msg, "success");
+
+      carregarResponsaveis();
+    } catch (err) {
+      const msg = err?.response?.data?.erro || "Erro ao importar do Forms";
+      showToast(msg, "error");
+    } finally {
+      setLoadingImport(false);
+    }
+  }
+
   return (
     <div className="page-crud">
       <div className="responsaveis-topbar">
         <h1>Responsáveis</h1>
 
-        <button
-          type="button"
-          onClick={() => setModalAjuda(true)}
-          className="responsaveis-btn-ajuda"
-          title="Ajuda"
-        >
-          Ajuda
-        </button>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <AdminOnly>
+            <button
+              type="button"
+              onClick={importarDoForms}
+              disabled={loadingImport}
+              title="Importar responsáveis/alunas do Forms"
+            >
+              {loadingImport ? "Importando..." : "Importar do Forms"}
+            </button>
+          </AdminOnly>
+
+          <button
+            type="button"
+            onClick={() => setModalAjuda(true)}
+            className="responsaveis-btn-ajuda"
+            title="Ajuda"
+          >
+            Ajuda
+          </button>
+        </div>
       </div>
 
       <AdminOnly>
