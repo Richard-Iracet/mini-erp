@@ -1,6 +1,5 @@
 const pool = require("../database/connection");
 
-// Listar todas as alunas (com dados do responsável via JOIN + turmas vinculadas)
 async function listarAlunas(req, res) {
   try {
     const query = `
@@ -10,6 +9,7 @@ async function listarAlunas(req, res) {
         a.ativo,
         a.created_at,
         a.responsavel_id,
+        a.data_nascimento,
 
         r.nome AS responsavel_nome,
         r.cpf  AS responsavel_cpf,
@@ -45,18 +45,17 @@ async function listarAlunas(req, res) {
   }
 }
 
-// Criar nova aluna (recebe responsavel_id)
 async function criarAluna(req, res) {
-  const { nome, responsavel_id, ativo } = req.body;
+  const { nome, responsavel_id, ativo, data_nascimento } = req.body;
 
   try {
     const query = `
-      INSERT INTO alunas (nome, responsavel_id, ativo)
-      VALUES ($1, $2, $3)
+      INSERT INTO alunas (nome, responsavel_id, ativo, data_nascimento)
+      VALUES ($1, $2, $3, $4)
       RETURNING *
     `;
 
-    const values = [nome, responsavel_id, ativo ?? true];
+    const values = [nome, responsavel_id, ativo ?? true, data_nascimento || null];
 
     const { rows } = await pool.query(query, values);
     return res.status(201).json(rows[0]);
@@ -66,7 +65,6 @@ async function criarAluna(req, res) {
   }
 }
 
-// Buscar aluna por ID (com dados do responsável)
 async function buscarAluna(req, res) {
   const { id } = req.params;
 
@@ -78,6 +76,7 @@ async function buscarAluna(req, res) {
         a.ativo,
         a.created_at,
         a.responsavel_id,
+        a.data_nascimento,
 
         r.nome AS responsavel_nome,
         r.cpf  AS responsavel_cpf,
@@ -108,22 +107,22 @@ async function buscarAluna(req, res) {
   }
 }
 
-// Atualizar aluna (altera responsavel_id e ativo)
 async function atualizarAluna(req, res) {
   const { id } = req.params;
-  const { nome, responsavel_id, ativo } = req.body;
+  const { nome, responsavel_id, ativo, data_nascimento } = req.body;
 
   try {
     const query = `
       UPDATE alunas
       SET nome = $1,
           responsavel_id = $2,
-          ativo = $3
-      WHERE id = $4
+          ativo = $3,
+          data_nascimento = $4
+      WHERE id = $5
       RETURNING *
     `;
 
-    const values = [nome, responsavel_id, ativo, id];
+    const values = [nome, responsavel_id, ativo, data_nascimento || null, id];
 
     const { rows } = await pool.query(query, values);
 
@@ -138,7 +137,6 @@ async function atualizarAluna(req, res) {
   }
 }
 
-// Deletar aluna
 async function deletarAluna(req, res) {
   const { id } = req.params;
 
@@ -157,10 +155,44 @@ async function deletarAluna(req, res) {
   }
 }
 
+async function aniversariantesMes(req, res) {
+  const mes = Number(req.query.mes);
+
+  if (!mes || mes < 1 || mes > 12) {
+    return res.status(400).json({ erro: "mes inválido (1-12)" });
+  }
+
+  try {
+    const { rows } = await pool.query(
+      `
+      SELECT 
+        a.id,
+        a.nome,
+        a.data_nascimento,
+        r.nome AS responsavel_nome,
+        r.telefone1 AS responsavel_telefone1,
+        r.telefone2 AS responsavel_telefone2
+      FROM alunas a
+      LEFT JOIN responsaveis r ON r.id = a.responsavel_id
+      WHERE a.data_nascimento IS NOT NULL
+        AND EXTRACT(MONTH FROM a.data_nascimento) = $1
+      ORDER BY EXTRACT(DAY FROM a.data_nascimento), a.nome
+      `,
+      [mes]
+    );
+
+    return res.json(rows);
+  } catch (err) {
+    console.error("Erro ao buscar aniversariantes:", err);
+    return res.status(500).json({ erro: "Erro ao buscar aniversariantes" });
+  }
+}
+
 module.exports = {
   listarAlunas,
   criarAluna,
   buscarAluna,
   atualizarAluna,
   deletarAluna,
+  aniversariantesMes,
 };
