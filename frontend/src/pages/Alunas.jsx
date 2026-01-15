@@ -47,6 +47,10 @@ export default function Alunas() {
     }
   }
 
+  function turmaLabel(t) {
+    return `${t.nome} — ${t.dia_semana} ${t.horario}`;
+  }
+
   function carregarAlunas() {
     api
       .get("/alunas")
@@ -303,7 +307,7 @@ export default function Alunas() {
                         <option value="">Selecione</option>
                         {turmas.map((t) => (
                           <option key={t.id} value={t.id}>
-                            {t.nome}
+                            {turmaLabel(t)}
                           </option>
                         ))}
                       </select>
