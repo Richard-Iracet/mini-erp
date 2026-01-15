@@ -16,6 +16,8 @@ export default function Pagamentos() {
 
   const [mesGerar, setMesGerar] = useState("");
   const [anoGerar, setAnoGerar] = useState("");
+  const [turmaGerar, setTurmaGerar] = useState("");
+  const [valorGerar, setValorGerar] = useState("");
 
   const [fMes, setFMes] = useState("");
   const [fAno, setFAno] = useState("");
@@ -135,22 +137,38 @@ export default function Pagamentos() {
       return;
     }
 
+    const payload = {
+      mes: Number(mesGerar),
+      ano: Number(anoGerar),
+    };
+
+    if (turmaGerar) payload.turma_id = Number(turmaGerar);
+    if (valorGerar) payload.valor_override = Number(valorGerar);
+
     showToast("Gerando mensalidades...", "warning");
 
     api
-      .post("/pagamentos/gerar", {
-        mes: Number(mesGerar),
-        ano: Number(anoGerar),
-      })
+      .post("/pagamentos/gerar", payload)
       .then((res) => {
         const qtd = res?.data?.quantidade ?? 0;
+
+        const turmaNome =
+          res?.data?.turma_nome ||
+          (turmaGerar ? `turma #${turmaGerar}` : "todas as turmas");
+        const extra = valorGerar
+          ? ` | valor override: ${formatMoney(valorGerar)}`
+          : "";
+
         showToast(
-          `Mensalidades geradas. Criadas: ${qtd} (${res.data.mes}/${res.data.ano})`,
+          `Mensalidades geradas. Criadas: ${qtd} (${res.data.mes}/${res.data.ano}) | ${turmaNome}${extra}`,
           "success"
         );
 
         setMesGerar("");
         setAnoGerar("");
+        setTurmaGerar("");
+        setValorGerar("");
+
         carregarPagamentos();
       })
       .catch((err) => {
@@ -332,12 +350,13 @@ export default function Pagamentos() {
         <div className="card pagamentos-gerar">
           <h2>Gerar mensalidades do mês</h2>
 
-          <form onSubmit={gerarMensalidades}>
+          <form onSubmit={gerarMensalidades} className="pagamentos-gerar-form">
             <input
               type="number"
               placeholder="Mês (1 a 12)"
               value={mesGerar}
               onChange={(e) => setMesGerar(e.target.value)}
+              className="pagamentos-gerar-mes"
             />
 
             <input
@@ -345,10 +364,37 @@ export default function Pagamentos() {
               placeholder="Ano (ex: 2026)"
               value={anoGerar}
               onChange={(e) => setAnoGerar(e.target.value)}
+              className="pagamentos-gerar-ano"
+            />
+
+            <select
+              value={turmaGerar}
+              onChange={(e) => setTurmaGerar(e.target.value)}
+              className="pagamentos-gerar-turma"
+            >
+              <option value="">Todas as turmas</option>
+              {turmas.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.nome}
+                </option>
+              ))}
+            </select>
+
+            <input
+              type="number"
+              placeholder="Valor diferente (opcional)"
+              value={valorGerar}
+              onChange={(e) => setValorGerar(e.target.value)}
+              className="pagamentos-gerar-valor"
             />
 
             <button type="submit">Gerar mensalidades</button>
           </form>
+
+          <p className="pagamentos-gerar-dica">
+            Se preencher “valor diferente”, todas as mensalidades geradas neste
+            mês usarão esse valor.
+          </p>
         </div>
       </AdminOnly>
 
