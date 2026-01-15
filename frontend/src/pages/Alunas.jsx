@@ -10,6 +10,7 @@ export default function Alunas() {
 
   const [nome, setNome] = useState("");
   const [responsavelId, setResponsavelId] = useState("");
+  const [dataNascimento, setDataNascimento] = useState("");
 
   const [turmaSelecionada, setTurmaSelecionada] = useState({});
 
@@ -19,6 +20,7 @@ export default function Alunas() {
   const [editNome, setEditNome] = useState("");
   const [editResponsavelId, setEditResponsavelId] = useState("");
   const [editAtivo, setEditAtivo] = useState(true);
+  const [editDataNascimento, setEditDataNascimento] = useState("");
 
   const [modalAjuda, setModalAjuda] = useState(false);
 
@@ -34,6 +36,15 @@ export default function Alunas() {
 
   function hideToast() {
     setToast((t) => ({ ...t, show: false }));
+  }
+
+  function formatarDataBR(data) {
+    if (!data) return "—";
+    try {
+      return new Date(data).toLocaleDateString("pt-BR");
+    } catch {
+      return "—";
+    }
   }
 
   function carregarAlunas() {
@@ -66,6 +77,7 @@ export default function Alunas() {
   function limparCadastro() {
     setNome("");
     setResponsavelId("");
+    setDataNascimento("");
   }
 
   function criarAluna(e) {
@@ -80,6 +92,7 @@ export default function Alunas() {
       .post("/alunas", {
         nome,
         responsavel_id: Number(responsavelId),
+        data_nascimento: dataNascimento || null,
       })
       .then(() => {
         limparCadastro();
@@ -130,6 +143,7 @@ export default function Alunas() {
       aluna.responsavel_id ? String(aluna.responsavel_id) : ""
     );
     setEditAtivo(aluna.ativo !== false);
+    setEditDataNascimento(aluna.data_nascimento || "");
     setModalEditar(true);
   }
 
@@ -151,6 +165,7 @@ export default function Alunas() {
         nome: editNome.trim(),
         responsavel_id: Number(editResponsavelId),
         ativo: editAtivo,
+        data_nascimento: editDataNascimento || null,
       })
       .then(() => {
         fecharEditar();
@@ -210,6 +225,12 @@ export default function Alunas() {
               ))}
             </select>
 
+            <input
+              type="date"
+              value={dataNascimento}
+              onChange={(e) => setDataNascimento(e.target.value)}
+            />
+
             <button type="submit">Salvar</button>
           </form>
 
@@ -228,6 +249,7 @@ export default function Alunas() {
             <thead>
               <tr>
                 <th>Aluna</th>
+                <th>Data nascimento</th>
                 <th>Responsável</th>
                 <th>Status</th>
                 <th>Turmas</th>
@@ -240,6 +262,7 @@ export default function Alunas() {
               {alunas.map((a) => (
                 <tr key={a.id}>
                   <td>{a.nome}</td>
+                  <td>{formatarDataBR(a.data_nascimento)}</td>
 
                   <td>
                     {a.responsavel_nome
@@ -351,6 +374,12 @@ export default function Alunas() {
                     </option>
                   ))}
                 </select>
+
+                <input
+                  type="date"
+                  value={editDataNascimento}
+                  onChange={(e) => setEditDataNascimento(e.target.value)}
+                />
 
                 <label className="alunas-editar-ativo">
                   <input
