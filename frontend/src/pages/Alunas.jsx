@@ -126,17 +126,8 @@ export default function Alunas() {
         carregarAlunas();
         showToast("Turma vinculada com sucesso", "success");
       })
-      .catch((error) => {
-        const msg =
-          error?.response?.data?.erro ||
-          error?.response?.data?.message ||
-          "Erro ao vincular turma";
-
-        if (typeof msg === "string" && msg.toLowerCase().includes("já")) {
-          showToast("Essa aluna já pertence a essa turma", "warning");
-        } else {
-          showToast("Erro ao vincular turma", "error");
-        }
+      .catch(() => {
+        showToast("Erro ao vincular turma", "error");
       });
   }
 
@@ -148,10 +139,10 @@ export default function Alunas() {
       .put(`/alunas-turmas/${vinculoId}/desativar`)
       .then(() => {
         carregarAlunas();
-        showToast("Aluna removida da turma", "success");
+        showToast("Turma removida", "success");
       })
       .catch(() => {
-        showToast("Erro ao remover da turma", "error");
+        showToast("Erro ao remover turma", "error");
       });
   }
 
@@ -216,7 +207,7 @@ export default function Alunas() {
       <div className="alunas-topbar">
         <h1>Alunas</h1>
 
-        <button type="button" onClick={() => setModalAjuda(true)} title="Ajuda">
+        <button type="button" onClick={() => setModalAjuda(true)}>
           Ajuda
         </button>
       </div>
@@ -239,7 +230,7 @@ export default function Alunas() {
               <option value="">Selecione o responsável</option>
               {responsaveis.map((r) => (
                 <option key={r.id} value={r.id}>
-                  {r.nome} {r.cpf ? `- ${r.cpf}` : ""}
+                  {r.nome}
                 </option>
               ))}
             </select>
@@ -252,11 +243,6 @@ export default function Alunas() {
 
             <button type="submit">Salvar</button>
           </form>
-
-          <p className="alunas-dica-responsavel">
-            Se o responsável ainda não existe, cadastre primeiro em
-            Responsáveis.
-          </p>
         </div>
       </AdminOnly>
 
@@ -268,11 +254,11 @@ export default function Alunas() {
             <thead>
               <tr>
                 <th>Aluna</th>
-                <th>Data nascimento</th>
+                <th>Nascimento</th>
                 <th>Responsável</th>
                 <th>Status</th>
                 <th>Turmas</th>
-                <th>Vincular turma</th>
+                <th>Vincular</th>
                 <th>Ação</th>
               </tr>
             </thead>
@@ -283,51 +269,31 @@ export default function Alunas() {
                   <td>{a.nome}</td>
                   <td>{formatarDataBR(a.data_nascimento)}</td>
 
-                  <td>
-                    {a.responsavel_nome
-                      ? a.responsavel_nome
-                      : "Sem responsável"}
-                  </td>
+                  <td>{a.responsavel_nome || "Sem responsável"}</td>
 
                   <td>{a.ativo ? "Ativa" : "Inativa"}</td>
 
                   <td>
-                    {Array.isArray(a.turmas) && a.turmas.length > 0 ? (
+                    {a.turmas?.length > 0 ? (
                       <div className="alunas-turmas">
                         {a.turmas.map((t) => (
-                          <div
-                            key={t.vinculo_id}
-                            className="alunas-turma-item"
-                          >
-                            • <b>{t.nome}</b>{" "}
-                            <span className="alunas-turma-horario">
-                              ({t.dia_semana} {t.horario})
-                            </span>
-
-                            <AdminOnly>
-                              <button
-                                onClick={() =>
-                                  removerDaTurma(t.vinculo_id)
-                                }
-                              >
-                                Remover
-                              </button>
-                            </AdminOnly>
+                          <div key={t.vinculo_id}>
+                            {t.nome}
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <span className="alunas-sem-turma">Sem turma</span>
+                      <span>Sem turma</span>
                     )}
                   </td>
 
                   <td>
-                    <AdminOnly fallback={<span>—</span>}>
+                    <AdminOnly>
                       <select
                         value={turmaSelecionada[a.id] || ""}
                         onChange={(e) =>
-                          setTurmaSelecionada((prev) => ({
-                            ...prev,
+                          setTurmaSelecionada((p) => ({
+                            ...p,
                             [a.id]: e.target.value,
                           }))
                         }
@@ -343,7 +309,7 @@ export default function Alunas() {
                   </td>
 
                   <td className="alunas-acoes">
-                    <AdminOnly fallback={<span>Somente leitura</span>}>
+                    <AdminOnly>
                       <button onClick={() => vincularTurma(a.id)}>
                         Vincular
                       </button>
@@ -359,25 +325,6 @@ export default function Alunas() {
               ))}
             </tbody>
           </table>
-        </div>
-      )}
-
-      {modalAjuda && (
-        <div onClick={() => setModalAjuda(false)} className="modal-overlay">
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="card modal-content"
-          >
-            <h2>Ajuda — Alunas</h2>
-
-            <p className="alunas-ajuda-texto">
-              Aqui você cadastra as alunas e vincula elas às turmas.
-            </p>
-
-            <div className="modal-actions">
-              <button onClick={() => setModalAjuda(false)}>Fechar</button>
-            </div>
-          </div>
         </div>
       )}
 
@@ -404,7 +351,7 @@ export default function Alunas() {
                   <option value="">Selecione o responsável</option>
                   {responsaveis.map((r) => (
                     <option key={r.id} value={r.id}>
-                      {r.nome} {r.cpf ? `- ${r.cpf}` : ""}
+                      {r.nome}
                     </option>
                   ))}
                 </select>
@@ -425,6 +372,32 @@ export default function Alunas() {
                 </label>
               </div>
 
+              {alunaEditando.turmas?.length > 0 && (
+                <div className="alunas-editar-turmas">
+                  <h4>Turmas</h4>
+
+                  {alunaEditando.turmas.map((t) => (
+                    <div key={t.vinculo_id}>
+                      {t.nome} ({t.dia_semana} {t.horario})
+                      <button
+                        onClick={() =>
+                          removerDaTurma(t.vinculo_id)
+                        }
+                        style={{
+                          marginLeft: 6,
+                          border: "none",
+                          background: "transparent",
+                          cursor: "pointer",
+                        }}
+                        title="Remover da turma"
+                      >
+                        ❌
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <div className="modal-actions">
                 <button onClick={salvarEdicao}>Atualizar</button>
                 <button onClick={fecharEditar}>Cancelar</button>
@@ -436,7 +409,7 @@ export default function Alunas() {
 
       <Toast
         show={toast.show}
-        message={toast.message}
+        message={toast.message},
         type={toast.type}
         onClose={hideToast}
       />
