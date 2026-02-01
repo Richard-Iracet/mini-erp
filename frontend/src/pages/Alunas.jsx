@@ -409,7 +409,7 @@ export default function Alunas() {
 
       <Toast
         show={toast.show}
-        message={toast.message},
+        message={toast.message}
         type={toast.type}
         onClose={hideToast}
       />
