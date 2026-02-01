@@ -531,15 +531,20 @@
 /* Alunas - Modal Editar */
 
 .alunas-editar-ativo {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
+  justify-content: flex-start;
 }
 
 .alunas-editar-ativo input[type="checkbox"] {
   margin: 0;
-  transform: scale(0.9);
+  width: 14px;
+  height: 14px;
+  flex: none;
+  accent-color: var(--primary);
 }
+
 
 .alunas-editar-turmas {
   margin-top: 12px;
