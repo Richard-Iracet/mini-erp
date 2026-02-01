@@ -19,6 +19,7 @@ async function listarAlunas(req, res) {
         COALESCE(
           JSON_AGG(
             DISTINCT JSONB_BUILD_OBJECT(
+              'vinculo_id', at.id,
               'id', t.id,
               'nome', t.nome,
               'dia_semana', t.dia_semana,
@@ -30,7 +31,8 @@ async function listarAlunas(req, res) {
 
       FROM alunas a
       LEFT JOIN responsaveis r ON r.id = a.responsavel_id
-      LEFT JOIN alunas_turmas at ON at.aluna_id = a.id
+      LEFT JOIN alunas_turmas at 
+        ON at.aluna_id = a.id AND at.ativo = true
       LEFT JOIN turmas t ON t.id = at.turma_id
 
       GROUP BY a.id, r.id
