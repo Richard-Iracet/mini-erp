@@ -514,6 +514,8 @@
   color: var(--muted);
 }
 
+
+
 /* Animations */
 @keyframes fadeUp {
   from {
@@ -525,3 +527,39 @@
     transform: translateY(0);
   }
 }
+
+/* Alunas - Modal Editar */
+
+.alunas-editar-ativo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.alunas-editar-ativo input[type="checkbox"] {
+  margin: 0;
+  transform: scale(0.9);
+}
+
+.alunas-editar-turmas {
+  margin-top: 12px;
+  display: grid;
+  gap: 6px;
+}
+
+.alunas-editar-turmas > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.alunas-editar-turmas button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 2px;
+  line-height: 1;
+  font-size: 14px;
+}
+
