@@ -140,6 +140,21 @@ export default function Alunas() {
       });
   }
 
+  function removerDaTurma(vinculoId) {
+    const ok = window.confirm("Remover aluna desta turma?");
+    if (!ok) return;
+
+    api
+      .put(`/alunas-turmas/${vinculoId}/desativar`)
+      .then(() => {
+        carregarAlunas();
+        showToast("Aluna removida da turma", "success");
+      })
+      .catch(() => {
+        showToast("Erro ao remover da turma", "error");
+      });
+  }
+
   function abrirEditar(aluna) {
     setAlunaEditando(aluna);
     setEditNome(aluna.nome || "");
@@ -280,11 +295,24 @@ export default function Alunas() {
                     {Array.isArray(a.turmas) && a.turmas.length > 0 ? (
                       <div className="alunas-turmas">
                         {a.turmas.map((t) => (
-                          <div key={t.id} className="alunas-turma-item">
+                          <div
+                            key={t.vinculo_id}
+                            className="alunas-turma-item"
+                          >
                             • <b>{t.nome}</b>{" "}
                             <span className="alunas-turma-horario">
                               ({t.dia_semana} {t.horario})
                             </span>
+
+                            <AdminOnly>
+                              <button
+                                onClick={() =>
+                                  removerDaTurma(t.vinculo_id)
+                                }
+                              >
+                                Remover
+                              </button>
+                            </AdminOnly>
                           </div>
                         ))}
                       </div>
@@ -319,7 +347,9 @@ export default function Alunas() {
                       <button onClick={() => vincularTurma(a.id)}>
                         Vincular
                       </button>
-                      <button onClick={() => abrirEditar(a)}>Editar</button>
+                      <button onClick={() => abrirEditar(a)}>
+                        Editar
+                      </button>
                       <button onClick={() => excluirAluna(a.id)}>
                         Excluir
                       </button>
