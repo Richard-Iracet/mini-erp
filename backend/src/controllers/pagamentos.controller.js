@@ -1,7 +1,7 @@
 const pool = require("../database/connection");
 
 const DESCONTO_DINHEIRO = 10;
-const DESCONTO_IRMAOS = 5;
+const DESCONTO_IRMAOS = 10;
 
 function calcularValorFinal({ valorOriginal, metodoPagamento, temIrmaos }) {
   const original = Number(valorOriginal) || 0;
