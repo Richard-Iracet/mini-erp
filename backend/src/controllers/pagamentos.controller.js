@@ -3,23 +3,32 @@ const pool = require("../database/connection");
 const DESCONTO_DINHEIRO = 10;
 const DESCONTO_IRMAOS = 10;
 
-function calcularValorFinal({ valorOriginal, metodoPagamento, temIrmaos }) {
+function calcularValorFinal({ valorOriginal, metodoPagamento, temIrmaos, mes }) {
   const original = Number(valorOriginal) || 0;
 
+  const isJaneiro = Number(mes) === 1;
+
   const descontoModalidade =
-    metodoPagamento === "dinheiro" ? DESCONTO_DINHEIRO : 0;
+    !isJaneiro && metodoPagamento === "dinheiro"
+      ? DESCONTO_DINHEIRO
+      : 0;
 
-  const descontoIrmaos = temIrmaos ? DESCONTO_IRMAOS : 0;
+  const descontoIrmaos =
+    !isJaneiro && temIrmaos ? DESCONTO_IRMAOS : 0;
 
-  const final = Math.max(original - descontoModalidade - descontoIrmaos, 0);
+  const valorFinal = Math.max(
+    original - descontoModalidade - descontoIrmaos,
+    0
+  );
 
   return {
     valor_original: original,
     desconto_modalidade: descontoModalidade,
     desconto_irmaos: descontoIrmaos,
-    valor_final: final,
+    valor_final: valorFinal,
   };
 }
+
 
 async function criarPagamento(req, res) {
   const { aluna_id, turma_id, mes, ano, valor, metodo_pagamento } = req.body;
@@ -45,10 +54,12 @@ async function criarPagamento(req, res) {
     const temIrmaos = total >= 2;
 
     const calc = calcularValorFinal({
-      valorOriginal: valor,
-      metodoPagamento: metodo,
-      temIrmaos,
-    });
+  valorOriginal: valor,
+  metodoPagamento: metodo,
+  temIrmaos,
+  mes, // 
+});
+
 
     const insertQuery = `
       INSERT INTO pagamentos (
@@ -289,7 +300,7 @@ async function atualizarMetodoPagamento(req, res) {
 
   try {
     const atualQuery = `
-      SELECT id, valor_original, desconto_irmaos
+      SELECT id, valor_original, desconto_irmaos, mes
       FROM pagamentos
       WHERE id = $1
     `;
@@ -303,10 +314,18 @@ async function atualizarMetodoPagamento(req, res) {
     const pagamento = atualRows[0];
 
     const valorOriginal = Number(pagamento.valor_original) || 0;
-    const descontoIrmaos = Number(pagamento.desconto_irmaos) || 0;
+    const isJaneiro = Number(pagamento.mes) === 1;
 
-    const descontoModalidade =
-      metodo_pagamento === "dinheiro" ? DESCONTO_DINHEIRO : 0;
+const descontoIrmaos = isJaneiro
+  ? 0
+  : Number(pagamento.desconto_irmaos) || 0;
+
+const descontoModalidade =
+  !isJaneiro && metodo_pagamento === "dinheiro"
+    ? DESCONTO_DINHEIRO
+    : 0;
+
+
 
     const valorFinal = Math.max(
       valorOriginal - descontoModalidade - descontoIrmaos,
@@ -441,14 +460,17 @@ async function gerarPagamentosDoMes(req, res) {
       RETURNING *
     `;
 
-    const result = await pool.query(query, [
-      mes,
-      ano,
-      metodoPadrao,
-      DESCONTO_IRMAOS,
-      valor_override,
-      turma_id,
-    ]);
+    const descontoIrmaosAplicado = mes === 1 ? 0 : DESCONTO_IRMAOS;
+
+const result = await pool.query(query, [
+  mes,
+  ano,
+  metodoPadrao,
+  descontoIrmaosAplicado,
+  valor_override,
+  turma_id,
+]);
+
 
     let turma_nome = null;
     if (turma_id) {
