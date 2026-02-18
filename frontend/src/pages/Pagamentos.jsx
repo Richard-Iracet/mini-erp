@@ -24,6 +24,11 @@ export default function Pagamentos() {
   const [fTurma, setFTurma] = useState("");
   const [fStatus, setFStatus] = useState("");
 
+  const [editando, setEditando] = useState(null);
+  const [editValor, setEditValor] = useState("");
+  const [editData, setEditData] = useState("");
+
+
   const [modalAjuda, setModalAjuda] = useState(false);
 
   const [toast, setToast] = useState({
@@ -237,6 +242,39 @@ export default function Pagamentos() {
         showToast(msg, "error");
       });
   }
+
+  function abrirEdicao(p) {
+  setEditando(p);
+  setEditValor(String(valorExibicao(p)));
+  setEditData(
+    p.data_pagamento
+      ? new Date(p.data_pagamento).toISOString().split("T")[0]
+      : ""
+  );
+}
+
+
+  function salvarEdicao() {
+  if (!editando) return;
+
+  showToast("Atualizando pagamento...", "warning");
+
+  api
+    .put(`/pagamentos/${editando.id}`, {
+      mes: editando.mes,
+      ano: editando.ano,
+      valor: Number(editValor),
+      data_pagamento: editData || null,
+    })
+    .then(() => {
+      setEditando(null);
+      carregarPagamentos();
+      showToast("Pagamento atualizado", "success");
+    })
+    .catch(() => showToast("Erro ao atualizar pagamento", "error"));
+}
+
+
 
   function atualizarMetodo(pagamentoId, novoMetodo) {
     showToast("Atualizando modalidade...", "warning");
@@ -549,6 +587,9 @@ export default function Pagamentos() {
                   <td>
                     <AdminOnly fallback={<span>Somente leitura</span>}>
                       <div className="pagamentos-acoes">
+                        <button onClick={() => abrirEdicao(p)}>
+                          Editar
+                        </button>
                         {!p.pago ? (
                           <button onClick={() => marcarComoPago(p.id)}>
                             Marcar como pago
@@ -633,6 +674,44 @@ export default function Pagamentos() {
           </div>
         </div>
       )}
+      
+      {editando && (
+  <div
+    onClick={() => setEditando(null)}
+    className="modal-overlay"
+  >
+    <div
+      onClick={(e) => e.stopPropagation()}
+      className="card modal-content"
+    >
+      <h2>Editar pagamento</h2>
+
+      <label>Valor</label>
+      <input
+        type="number"
+        value={editValor}
+        onChange={(e) => setEditValor(e.target.value)}
+      />
+
+      <label>Data pagamento</label>
+      <input
+        type="date"
+        value={editData}
+        onChange={(e) => setEditData(e.target.value)}
+      />
+
+      <div className="modal-actions">
+        <button onClick={salvarEdicao}>
+          Salvar
+        </button>
+
+        <button onClick={() => setEditando(null)}>
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       <Toast
         show={toast.show}
