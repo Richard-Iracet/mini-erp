@@ -5,7 +5,6 @@ const DESCONTO_IRMAOS = 10;
 
 function calcularValorFinal({ valorOriginal, metodoPagamento, temIrmaos, mes }) {
   const original = Number(valorOriginal) || 0;
-
   const isJaneiro = Number(mes) === 1;
 
   const descontoModalidade =
@@ -13,24 +12,14 @@ function calcularValorFinal({ valorOriginal, metodoPagamento, temIrmaos, mes }) 
       ? DESCONTO_DINHEIRO
       : 0;
 
-  const descontoIrmaos = isJaneiro
-  ? 0
-  : Number(pagamento.desconto_irmaos) || 0;
+  const descontoIrmaos =
+    !isJaneiro && temIrmaos
+      ? DESCONTO_IRMAOS
+      : 0;
 
-const descontoModalidade =
-  !isJaneiro && metodo_pagamento === "dinheiro"
-    ? DESCONTO_DINHEIRO
-    : 0;
-
-const valorFinal = isJaneiro
-  ? valorOriginal
-  : Math.max(valorOriginal - descontoModalidade - descontoIrmaos, 0);
-
-
-  const valorFinal = Math.max(
-    original - descontoModalidade - descontoIrmaos,
-    0
-  );
+  const valorFinal = isJaneiro
+    ? original
+    : Math.max(original - descontoModalidade - descontoIrmaos, 0);
 
   return {
     valor_original: original,
@@ -39,6 +28,8 @@ const valorFinal = isJaneiro
     valor_final: valorFinal,
   };
 }
+
+
 
 
 async function criarPagamento(req, res) {
@@ -347,10 +338,10 @@ const descontoModalidade =
 
 
 
-    const valorFinal = Math.max(
-      valorOriginal - descontoModalidade - descontoIrmaos,
-      0
-    );
+    const valorFinal = isJaneiro
+  ? valorOriginal
+  : Math.max(valorOriginal - descontoModalidade - descontoIrmaos, 0);
+
 
     const updateQuery = `
       UPDATE pagamentos
