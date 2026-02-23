@@ -5,6 +5,7 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
 
 export default function Relatorios() {
   const [resumo, setResumo] = useState(null);
@@ -373,6 +374,68 @@ export default function Relatorios() {
     exportarCSV(`inadimplentes_${mes}-${ano}.csv`, rows);
   }
 
+  function exportarRelatorioCompletoExcel() {
+  if (!completo?.registros || completo.registros.length === 0) {
+    showToast("Nenhum registro no relatório completo", "warning");
+    return;
+  }
+
+  const registrosOrdenados = [...completo.registros].sort((a, b) => {
+    if (a.pago !== b.pago) return a.pago ? -1 : 1;
+
+    if (!a.data_pagamento && !b.data_pagamento) return 0;
+    if (!a.data_pagamento) return 1;
+    if (!b.data_pagamento) return -1;
+
+    return Date.parse(a.data_pagamento) - Date.parse(b.data_pagamento);
+  });
+
+  const dados = registrosOrdenados.map((r) => ({
+    Status: r.pago ? "Pago" : "Pendente",
+    "Data Pagamento": r.data_pagamento ? new Date(r.data_pagamento) : "",
+    Método: r.metodo_pagamento || "",
+    Responsável: r.responsavel_nome || "",
+    CPF: r.responsavel_cpf || "",
+    Telefone: r.responsavel_telefone1 || "",
+    Aluna: r.aluna_nome || "",
+    Turma: r.turma_nome || "",
+    "Valor Final": Number(r.valor_final) || 0,
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(dados);
+
+  const range = XLSX.utils.decode_range(ws["!ref"]);
+  for (let R = 1; R <= range.e.r; ++R) {
+    const valorCell = ws[`I${R + 1}`];
+    if (valorCell) valorCell.z = '"R$" #,##0.00';
+
+    const dataCell = ws[`B${R + 1}`];
+    if (dataCell && dataCell.v instanceof Date) {
+      dataCell.t = "d";
+      dataCell.z = "dd/mm/yyyy";
+    }
+  }
+
+  ws["!cols"] = [
+    { wch: 12 },
+    { wch: 15 },
+    { wch: 16 },
+    { wch: 30 },
+    { wch: 18 },
+    { wch: 18 },
+    { wch: 28 },
+    { wch: 22 },
+    { wch: 14 },
+  ];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Relatório");
+
+  XLSX.writeFile(wb, `relatorio_completo_${mes}-${ano}.xlsx`);
+
+  showToast("Excel exportado com sucesso", "success");
+}
+
   return (
     <div className="page-crud">
       <h1 className="relatorios-title">Relatórios</h1>
@@ -477,6 +540,12 @@ export default function Relatorios() {
           >
             Relatório Completo (PDF)
           </button>
+          <button
+  onClick={exportarRelatorioCompletoExcel}
+  disabled={!completo?.registros || completo.registros.length === 0}
+>
+  Relatório Completo (Excel)
+</button>
         </div>
 
         <p className="relatorios-exportacao-dica">
