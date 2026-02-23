@@ -384,9 +384,12 @@ export default function Relatorios() {
 
     const prioridadeMetodo = (r) => {
       if (!r.pago) return 3;
+
       const metodo = (r.metodo_pagamento || "").toLowerCase();
+
       if (metodo.includes("pix")) return 1;
       if (metodo.includes("dinheiro")) return 2;
+
       return 2;
     };
 
@@ -415,7 +418,6 @@ export default function Relatorios() {
 
   const periodo = periodoTexto();
 
-
   const aoa = [
     ["Relatório Completo do Mês"],
     [`Período: ${periodo}`],
@@ -440,24 +442,48 @@ export default function Relatorios() {
     const cell = ws[`${col}${headerRow}`];
     if (cell) {
       cell.s = {
-        font: { bold:true, color:{ rgb:"FFFFFF" } },
-        fill: { fgColor:{ rgb:"D16BA5" } },
-        alignment:{ horizontal:"center" }
+        font:{ bold:true, color:{ rgb:"FFFFFF" }},
+        fill:{ fgColor:{ rgb:"D16BA5" }},
+        alignment:{ horizontal:"center", vertical:"center" }
       };
     }
   });
+
+  ws["!freeze"] = { xSplit:0, ySplit:headerRow };
+
+  ws["!autofilter"] = {
+    ref:`A${headerRow}:I${headerRow}`
+  };
 
   const range = XLSX.utils.decode_range(ws["!ref"]);
 
   for (let R = headerRow; R <= range.e.r; ++R) {
 
-    const valorCell = ws[`I${R+1}`];
-    if (valorCell) valorCell.z = '"R$" #,##0.00';
+    const linhaExcel = R + 1;
 
-    const dataCell = ws[`B${R+1}`];
+    const valorCell = ws[`I${linhaExcel}`];
+    if (valorCell) {
+      valorCell.z = '"R$" #,##0.00';
+      valorCell.s = { alignment:{ horizontal:"right" }};
+    }
+
+    const dataCell = ws[`B${linhaExcel}`];
     if (dataCell && dataCell.v instanceof Date) {
       dataCell.t = "d";
       dataCell.z = "dd/mm/yyyy";
+      dataCell.s = { alignment:{ horizontal:"center" }};
+    }
+
+    if ((R - headerRow) % 2 === 1) {
+      colunas.forEach(col=>{
+        const c = ws[`${col}${linhaExcel}`];
+        if (c) {
+          c.s = {
+            ...c.s,
+            fill:{ fgColor:{ rgb:"F4F4F4" }}
+          };
+        }
+      });
     }
   }
 
@@ -478,7 +504,7 @@ export default function Relatorios() {
 
   XLSX.writeFile(wb, `relatorio_completo_${mes}-${ano}.xlsx`);
 
-  showToast("Excel exportado com sucesso", "success");
+  showToast("Excel PROFISSIONAL exportado", "success");
 }
   return (
     <div className="page-crud">
