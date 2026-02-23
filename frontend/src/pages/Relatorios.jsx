@@ -381,13 +381,32 @@ export default function Relatorios() {
   }
 
   const registrosOrdenados = [...completo.registros].sort((a, b) => {
-    if (a.pago !== b.pago) return a.pago ? -1 : 1;
 
-    if (!a.data_pagamento && !b.data_pagamento) return 0;
-    if (!a.data_pagamento) return 1;
-    if (!b.data_pagamento) return -1;
+    const prioridadeMetodo = (r) => {
+      if (!r.pago) return 3;
 
-    return Date.parse(a.data_pagamento) - Date.parse(b.data_pagamento);
+      const metodo = (r.metodo_pagamento || "").toLowerCase();
+
+      if (metodo.includes("pix")) return 1;
+      if (metodo.includes("dinheiro")) return 2;
+
+      return 2;
+    };
+
+    const pa = prioridadeMetodo(a);
+    const pb = prioridadeMetodo(b);
+
+    if (pa !== pb) return pa - pb;
+
+    const da = a.data_pagamento
+      ? new Date(a.data_pagamento).getTime()
+      : Infinity;
+
+    const db = b.data_pagamento
+      ? new Date(b.data_pagamento).getTime()
+      : Infinity;
+
+    return da - db;
   });
 
   const dados = registrosOrdenados.map((r) => ({
@@ -404,7 +423,10 @@ export default function Relatorios() {
 
   const ws = XLSX.utils.json_to_sheet(dados);
 
+  if (!ws["!ref"]) return;
+
   const range = XLSX.utils.decode_range(ws["!ref"]);
+
   for (let R = 1; R <= range.e.r; ++R) {
     const valorCell = ws[`I${R + 1}`];
     if (valorCell) valorCell.z = '"R$" #,##0.00';
@@ -435,7 +457,6 @@ export default function Relatorios() {
 
   showToast("Excel exportado com sucesso", "success");
 }
-
   return (
     <div className="page-crud">
       <h1 className="relatorios-title">Relatórios</h1>
