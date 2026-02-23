@@ -153,47 +153,54 @@ export default function Relatorios() {
   }
 
   function exportarRelatorioCompletoCSV() {
-    if (!completo?.registros || completo.registros.length === 0) {
-      showToast("Nenhum registro no relatório completo", "warning");
-      return;
-    }
-
-    const rows = completo.registros.map((r) => ({
-      pagamento_id: r.pagamento_id,
-      mes: r.mes,
-      ano: r.ano,
-      status: r.pago ? "Pago" : "Pendente",
-      data_pagamento: r.data_pagamento
-        ? new Date(r.data_pagamento).toLocaleDateString("pt-BR")
-        : "",
-      metodo_pagamento: r.metodo_pagamento || "",
-
-      valor_original: r.valor_original,
-      desconto_modalidade: r.desconto_modalidade,
-      desconto_irmaos: r.desconto_irmaos,
-      valor_final: r.valor_final,
-
-      turma: r.turma_nome,
-      turma_dia: r.dia_semana,
-      turma_horario: r.horario,
-
-      aluna: r.aluna_nome,
-      aluna_ativa: r.aluna_ativa ? "Ativa" : "Inativa",
-
-      responsavel: r.responsavel_nome || "",
-      responsavel_cpf: r.responsavel_cpf || "",
-      responsavel_telefone1: r.responsavel_telefone1 || "",
-      responsavel_telefone2: r.responsavel_telefone2 || "",
-      responsavel_email: r.responsavel_email || "",
-      responsavel_endereco: r.responsavel_endereco || "",
-      responsavel_bairro: r.responsavel_bairro || "",
-      responsavel_municipio: r.responsavel_municipio || "",
-      responsavel_estado: r.responsavel_estado || "",
-      responsavel_cep: r.responsavel_cep || "",
-    }));
-
-    exportarCSV(`relatorio_completo_${mes}-${ano}.csv`, rows);
+  if (!completo?.registros || completo.registros.length === 0) {
+    showToast("Nenhum registro no relatório completo", "warning");
+    return;
   }
+  const registrosOrdenados = [...completo.registros].sort((a, b) => {
+    if (!a.data_pagamento && !b.data_pagamento) return 0;
+    if (!a.data_pagamento) return 1; // sem data vai pro final
+    if (!b.data_pagamento) return -1;
+
+    return new Date(a.data_pagamento) - new Date(b.data_pagamento);
+  });
+
+  const rows = registrosOrdenados.map((r) => ({
+    pagamento_id: r.pagamento_id,
+    mes: r.mes,
+    ano: r.ano,
+    status: r.pago ? "Pago" : "Pendente",
+    data_pagamento: r.data_pagamento
+      ? new Date(r.data_pagamento).toLocaleDateString("pt-BR")
+      : "",
+    metodo_pagamento: r.metodo_pagamento || "",
+
+    valor_original: r.valor_original,
+    desconto_modalidade: r.desconto_modalidade,
+    desconto_irmaos: r.desconto_irmaos,
+    valor_final: r.valor_final,
+
+    turma: r.turma_nome,
+    turma_dia: r.dia_semana,
+    turma_horario: r.horario,
+
+    aluna: r.aluna_nome,
+    aluna_ativa: r.aluna_ativa ? "Ativa" : "Inativa",
+
+    responsavel: r.responsavel_nome || "",
+    responsavel_cpf: r.responsavel_cpf || "",
+    responsavel_telefone1: r.responsavel_telefone1 || "",
+    responsavel_telefone2: r.responsavel_telefone2 || "",
+    responsavel_email: r.responsavel_email || "",
+    responsavel_endereco: r.responsavel_endereco || "",
+    responsavel_bairro: r.responsavel_bairro || "",
+    responsavel_municipio: r.responsavel_municipio || "",
+    responsavel_estado: r.responsavel_estado || "",
+    responsavel_cep: r.responsavel_cep || "",
+  }));
+
+  exportarCSV(`relatorio_completo_${mes}-${ano}.csv`, rows);
+}
 
   function exportarRelatorioCompletoPDF() {
     if (!completo?.registros || completo.registros.length === 0) {
