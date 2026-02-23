@@ -374,7 +374,7 @@ export default function Relatorios() {
     exportarCSV(`inadimplentes_${mes}-${ano}.csv`, rows);
   }
 
-  function exportarRelatorioCompletoExcel() {
+ function exportarRelatorioCompletoExcel() {
   if (!completo?.registros || completo.registros.length === 0) {
     showToast("Nenhum registro no relatório completo", "warning");
     return;
@@ -384,12 +384,9 @@ export default function Relatorios() {
 
     const prioridadeMetodo = (r) => {
       if (!r.pago) return 3;
-
       const metodo = (r.metodo_pagamento || "").toLowerCase();
-
       if (metodo.includes("pix")) return 1;
       if (metodo.includes("dinheiro")) return 2;
-
       return 2;
     };
 
@@ -398,40 +395,66 @@ export default function Relatorios() {
 
     if (pa !== pb) return pa - pb;
 
-    const da = a.data_pagamento
-      ? new Date(a.data_pagamento).getTime()
-      : Infinity;
-
-    const db = b.data_pagamento
-      ? new Date(b.data_pagamento).getTime()
-      : Infinity;
+    const da = a.data_pagamento ? new Date(a.data_pagamento).getTime() : Infinity;
+    const db = b.data_pagamento ? new Date(b.data_pagamento).getTime() : Infinity;
 
     return da - db;
   });
 
-  const dados = registrosOrdenados.map((r) => ({
-    Status: r.pago ? "Pago" : "Pendente",
-    "Data Pagamento": r.data_pagamento ? new Date(r.data_pagamento) : "",
-    Método: r.metodo_pagamento || "",
-    Responsável: r.responsavel_nome || "",
-    CPF: r.responsavel_cpf || "",
-    Telefone: r.responsavel_telefone1 || "",
-    Aluna: r.aluna_nome || "",
-    Turma: r.turma_nome || "",
-    "Valor Final": Number(r.valor_final) || 0,
-  }));
+  const linhas = registrosOrdenados.map((r) => ([
+    r.pago ? "Pago" : "Pendente",
+    r.data_pagamento ? new Date(r.data_pagamento) : "",
+    r.metodo_pagamento || "",
+    r.responsavel_nome || "",
+    r.responsavel_cpf || "",
+    r.responsavel_telefone1 || "",
+    r.aluna_nome || "",
+    r.turma_nome || "",
+    Number(r.valor_final) || 0,
+  ]));
 
-  const ws = XLSX.utils.json_to_sheet(dados);
+  const periodo = periodoTexto();
 
-  if (!ws["!ref"]) return;
+
+  const aoa = [
+    ["Relatório Completo do Mês"],
+    [`Período: ${periodo}`],
+    [`Total: ${completo.total_registros} | Pago: ${formatMoney(completo.total_pago)} | Pendente: ${formatMoney(completo.total_pendente)}`],
+    [],
+    ["Status","Pago em","Método","Responsável","CPF","Telefone","Aluna","Turma","Valor"],
+    ...linhas
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+  ws["!merges"] = [
+    { s:{r:0,c:0}, e:{r:0,c:8} },
+    { s:{r:1,c:0}, e:{r:1,c:8} },
+    { s:{r:2,c:0}, e:{r:2,c:8} }
+  ];
+
+  const headerRow = 5;
+  const colunas = ["A","B","C","D","E","F","G","H","I"];
+
+  colunas.forEach((col) => {
+    const cell = ws[`${col}${headerRow}`];
+    if (cell) {
+      cell.s = {
+        font: { bold:true, color:{ rgb:"FFFFFF" } },
+        fill: { fgColor:{ rgb:"D16BA5" } },
+        alignment:{ horizontal:"center" }
+      };
+    }
+  });
 
   const range = XLSX.utils.decode_range(ws["!ref"]);
 
-  for (let R = 1; R <= range.e.r; ++R) {
-    const valorCell = ws[`I${R + 1}`];
+  for (let R = headerRow; R <= range.e.r; ++R) {
+
+    const valorCell = ws[`I${R+1}`];
     if (valorCell) valorCell.z = '"R$" #,##0.00';
 
-    const dataCell = ws[`B${R + 1}`];
+    const dataCell = ws[`B${R+1}`];
     if (dataCell && dataCell.v instanceof Date) {
       dataCell.t = "d";
       dataCell.z = "dd/mm/yyyy";
@@ -439,15 +462,15 @@ export default function Relatorios() {
   }
 
   ws["!cols"] = [
-    { wch: 12 },
-    { wch: 15 },
-    { wch: 16 },
-    { wch: 30 },
-    { wch: 18 },
-    { wch: 18 },
-    { wch: 28 },
-    { wch: 22 },
-    { wch: 14 },
+    { wch:12 },
+    { wch:15 },
+    { wch:16 },
+    { wch:30 },
+    { wch:18 },
+    { wch:18 },
+    { wch:28 },
+    { wch:22 },
+    { wch:14 }
   ];
 
   const wb = XLSX.utils.book_new();
