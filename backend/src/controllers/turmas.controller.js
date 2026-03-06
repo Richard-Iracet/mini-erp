@@ -12,7 +12,7 @@ async function listarTurmas(req, res) {
         t.created_at,
         COUNT(at.aluna_id) AS qtd_alunas
       FROM turmas t
-      LEFT JOIN alunas_turmas at ON at.turma_id = t.id
+      LEFT JOIN alunas_turmas at ON at.turma_id = t.id AND at.ativo = true
       GROUP BY t.id
       ORDER BY t.id
     `;
@@ -41,6 +41,7 @@ async function listarAlunasDaTurma(req, res) {
       INNER JOIN alunas a ON a.id = at.aluna_id
       LEFT JOIN responsaveis r ON r.id = a.responsavel_id
       WHERE at.turma_id = $1
+AND at.ativo = true
       ORDER BY a.nome ASC
     `;
 
