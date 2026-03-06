@@ -152,7 +152,7 @@ async function listarPagamentos(req, res) {
         p.valor_final,
         p.valor,
         p.pago,
-        p.data_pagamento
+        TO_CHAR(p.data_pagamento,'YYYY-MM-DD') as data_pagamento
       FROM pagamentos p
       JOIN alunas a ON a.id = p.aluna_id
       JOIN turmas t ON t.id = p.turma_id
