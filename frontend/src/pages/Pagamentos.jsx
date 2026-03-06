@@ -579,6 +579,7 @@ if (tipoPagamento === "mensalidade" && (!turmaId || !mes || !ano)) {
               {pagamentos.map((p) => (
                 <tr key={p.id}>
                   <td>{p.aluna}</td>
+                  <td>{p.tipo === "matricula" ? "Matrícula" : "Mensalidade"}</td>
                   <td>{p.tipo === "matricula" ? "—" : p.turma}</td>
                   <td>{p.tipo === "matricula" ? "—" : p.mes}</td>
                   <td>{p.tipo === "matricula" ? "—" : p.ano}</td>
