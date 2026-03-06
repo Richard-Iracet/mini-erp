@@ -33,13 +33,21 @@ function calcularValorFinal({ valorOriginal, metodoPagamento, temIrmaos, mes }) 
 
 
 async function criarPagamento(req, res) {
-  const { aluna_id, turma_id, mes, ano, valor, metodo_pagamento } = req.body;
+  const { aluna_id, turma_id, mes, ano, valor, metodo_pagamento, tipo } = req.body;
 
-  if (!aluna_id || !turma_id || !mes || !ano || valor === undefined) {
-    return res.status(400).json({
-      erro: "Campos obrigatórios: aluna_id, turma_id, mes, ano, valor",
-    });
-  }
+const tipoPagamento = tipo || "mensalidade";
+
+  if (!aluna_id || valor === undefined) {
+  return res.status(400).json({
+    erro: "Campos obrigatórios: aluna_id e valor",
+  });
+}
+
+if (tipoPagamento === "mensalidade" && (!turma_id || !mes || !ano)) {
+  return res.status(400).json({
+    erro: "Mensalidade precisa de turma_id, mes e ano",
+  });
+}
 
   const metodo = metodo_pagamento || "pix";
 
@@ -65,26 +73,28 @@ async function criarPagamento(req, res) {
 
     const insertQuery = `
       INSERT INTO pagamentos (
-        aluna_id, turma_id, mes, ano,
-        metodo_pagamento,
-        valor_original, desconto_modalidade, desconto_irmaos, valor_final,
-        valor
-      )
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$9)
+  aluna_id, turma_id, mes, ano,
+  tipo,
+  metodo_pagamento,
+  valor_original, desconto_modalidade, desconto_irmaos, valor_final,
+  valor
+)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$10)
       RETURNING *
     `;
 
-    const values = [
-      aluna_id,
-      turma_id,
-      mes,
-      ano,
-      metodo,
-      calc.valor_original,
-      calc.desconto_modalidade,
-      calc.desconto_irmaos,
-      calc.valor_final,
-    ];
+   const values = [
+  aluna_id,
+  tipoPagamento === "mensalidade" ? turma_id : null,
+  tipoPagamento === "mensalidade" ? mes : null,
+  tipoPagamento === "mensalidade" ? ano : null,
+  tipoPagamento,
+  metodo,
+  calc.valor_original,
+  calc.desconto_modalidade,
+  calc.desconto_irmaos,
+  calc.valor_final,
+];
 
     const { rows } = await pool.query(insertQuery, values);
     return res.status(201).json(rows[0]);
