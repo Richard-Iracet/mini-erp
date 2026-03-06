@@ -13,6 +13,7 @@ export default function Pagamentos() {
   const [mes, setMes] = useState("");
   const [ano, setAno] = useState("");
   const [valor, setValor] = useState("");
+  const [tipoPagamento, setTipoPagamento] = useState("mensalidade");
 
   const [mesGerar, setMesGerar] = useState("");
   const [anoGerar, setAnoGerar] = useState("");
@@ -107,25 +108,31 @@ export default function Pagamentos() {
   function criarPagamento(e) {
     e.preventDefault();
 
-    if (!alunaId || !turmaId || !mes || !ano || !valor) {
-      showToast("Preencha todos os campos", "warning");
-      return;
-    }
+   if (!alunaId || !valor) {
+  showToast("Preencha os campos obrigatórios", "warning");
+  return;
+}
 
-    api
-      .post("/pagamentos", {
-        aluna_id: alunaId,
-        turma_id: turmaId,
-        mes: Number(mes),
-        ano: Number(ano),
-        valor: Number(valor),
-      })
+if (tipoPagamento === "mensalidade" && (!turmaId || !mes || !ano)) {
+  showToast("Mensalidade precisa de turma, mês e ano", "warning");
+  return;
+}
+
+    api.post("/pagamentos", {
+  aluna_id: alunaId,
+  turma_id: tipoPagamento === "mensalidade" ? turmaId : null,
+  mes: tipoPagamento === "mensalidade" ? Number(mes) : null,
+  ano: tipoPagamento === "mensalidade" ? Number(ano) : null,
+  valor: Number(valor),
+  tipo: tipoPagamento,
+})
       .then(() => {
         setAlunaId("");
         setTurmaId("");
         setMes("");
         setAno("");
         setValor("");
+        setTipoPagamento("mensalidade");
         carregarPagamentos();
         showToast("Pagamento manual criado", "success");
       })
@@ -247,10 +254,10 @@ export default function Pagamentos() {
   setEditando(p);
   setEditValor(String(valorExibicao(p)));
   setEditData(
-    p.data_pagamento
-      ? new Date(p.data_pagamento).toISOString().split("T")[0]
-      : ""
-  );
+  p.data_pagamento
+    ? p.data_pagamento.split("T")[0]
+    : ""
+);
 }
 
 
@@ -445,56 +452,72 @@ export default function Pagamentos() {
           <h2>Novo Pagamento (Manual)</h2>
 
           <form onSubmit={criarPagamento}>
-            <select
-  value={alunaId}
-  onChange={(e) => setAlunaId(e.target.value)}
->
-  <option value="">Selecione a aluna</option>
 
-  {[...alunas]
-    .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"))
-    .map((a) => (
-      <option key={a.id} value={a.id}>
-        {a.nome}
-      </option>
-    ))}
-</select>
+  <select
+    value={tipoPagamento}
+    onChange={(e) => setTipoPagamento(e.target.value)}
+  >
+    <option value="mensalidade">Mensalidade</option>
+    <option value="matricula">Matrícula</option>
+  </select>
 
-            <select
-              value={turmaId}
-              onChange={(e) => setTurmaId(e.target.value)}
-            >
-              <option value="">Selecione a turma</option>
-              {turmas.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {turmaLabel(t)}
-                </option>
-              ))}
-            </select>
+  <select
+    value={alunaId}
+    onChange={(e) => setAlunaId(e.target.value)}
+  >
+    <option value="">Selecione a aluna</option>
 
-            <input
-              type="number"
-              placeholder="Mês (1 a 12)"
-              value={mes}
-              onChange={(e) => setMes(e.target.value)}
-            />
+    {[...alunas]
+      .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"))
+      .map((a) => (
+        <option key={a.id} value={a.id}>
+          {a.nome}
+        </option>
+      ))}
+  </select>
 
-            <input
-              type="number"
-              placeholder="Ano (ex: 2026)"
-              value={ano}
-              onChange={(e) => setAno(e.target.value)}
-            />
+  {tipoPagamento === "mensalidade" && (
+    <select
+      value={turmaId}
+      onChange={(e) => setTurmaId(e.target.value)}
+    >
+      <option value="">Selecione a turma</option>
+      {turmas.map((t) => (
+        <option key={t.id} value={t.id}>
+          {turmaLabel(t)}
+        </option>
+      ))}
+    </select>
+  )}
 
-            <input
-              type="number"
-              placeholder="Valor (R$)"
-              value={valor}
-              onChange={(e) => setValor(e.target.value)}
-            />
+  {tipoPagamento === "mensalidade" && (
+    <input
+      type="number"
+      placeholder="Mês (1 a 12)"
+      value={mes}
+      onChange={(e) => setMes(e.target.value)}
+    />
+  )}
 
-            <button type="submit">Salvar pagamento</button>
-          </form>
+  {tipoPagamento === "mensalidade" && (
+    <input
+      type="number"
+      placeholder="Ano (ex: 2026)"
+      value={ano}
+      onChange={(e) => setAno(e.target.value)}
+    />
+  )}
+
+  <input
+    type="number"
+    placeholder="Valor (R$)"
+    value={valor}
+    onChange={(e) => setValor(e.target.value)}
+  />
+
+  <button type="submit">Salvar pagamento</button>
+
+</form>
         </div>
       </AdminOnly>
 
