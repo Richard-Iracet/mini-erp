@@ -602,8 +602,8 @@ if (tipoPagamento === "mensalidade" && (!turmaId || !mes || !ano)) {
 
                   <td>
                     {p.data_pagamento
-                      ? new Date(p.data_pagamento).toLocaleDateString()
-                      : "-"}
+  ? p.data_pagamento.split("-").reverse().join("/")
+  : "-"}
                   </td>
 
                   <td>
