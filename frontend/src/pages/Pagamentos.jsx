@@ -446,16 +446,19 @@ export default function Pagamentos() {
 
           <form onSubmit={criarPagamento}>
             <select
-              value={alunaId}
-              onChange={(e) => setAlunaId(e.target.value)}
-            >
-              <option value="">Selecione a aluna</option>
-              {alunas.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.nome}
-                </option>
-              ))}
-            </select>
+  value={alunaId}
+  onChange={(e) => setAlunaId(e.target.value)}
+>
+  <option value="">Selecione a aluna</option>
+
+  {[...alunas]
+    .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"))
+    .map((a) => (
+      <option key={a.id} value={a.id}>
+        {a.nome}
+      </option>
+    ))}
+</select>
 
             <select
               value={turmaId}
