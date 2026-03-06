@@ -193,23 +193,23 @@ async function atualizarPagamento(req, res) {
   const { id } = req.params;
   const { mes, ano, valor, data_pagamento } = req.body;
 
-  if (!mes || !ano || valor === undefined) {
-    return res.status(400).json({
-      erro: "Campos obrigatórios: mes, ano, valor",
-    });
-  }
+  if (valor === undefined) {
+  return res.status(400).json({
+    erro: "Campo obrigatório: valor",
+  });
+}
 
   try {
     const query = `
       UPDATE pagamentos
-      SET mes = $1,
-          ano = $2,
-          valor = $3,
-          data_pagamento = $4,
-          valor_original = $3,
-          valor_final = $3
-      WHERE id = $5
-      RETURNING *
+SET mes = COALESCE($1, mes),
+    ano = COALESCE($2, ano),
+    valor = $3,
+    data_pagamento = $4,
+    valor_original = $3,
+    valor_final = $3
+WHERE id = $5
+RETURNING *
     `;
 
     const { rows } = await pool.query(query, [
