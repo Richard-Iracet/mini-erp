@@ -563,6 +563,7 @@ if (tipoPagamento === "mensalidade" && (!turmaId || !mes || !ano)) {
             <thead>
               <tr>
                 <th>Aluna</th>
+                <th>Tipo</th>
                 <th>Turma</th>
                 <th>Mês</th>
                 <th>Ano</th>
@@ -578,9 +579,9 @@ if (tipoPagamento === "mensalidade" && (!turmaId || !mes || !ano)) {
               {pagamentos.map((p) => (
                 <tr key={p.id}>
                   <td>{p.aluna}</td>
-                  <td>{p.turma}</td>
-                  <td>{p.mes}</td>
-                  <td>{p.ano}</td>
+                  <td>{p.tipo === "matricula" ? "—" : p.turma}</td>
+                  <td>{p.tipo === "matricula" ? "—" : p.mes}</td>
+                  <td>{p.tipo === "matricula" ? "—" : p.ano}</td>
 
                   <td>
                     <AdminOnly
