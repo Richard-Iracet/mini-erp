@@ -112,7 +112,7 @@ if (tipoPagamento === "mensalidade" && (!turma_id || !mes || !ano)) {
 
 async function listarPagamentos(req, res) {
   try {
-    const { mes, ano, turma_id, status } = req.query;
+    const { mes, ano, turma_id, status, tipo } = req.query;
 
     const filtros = [];
     const params = [];
@@ -135,6 +135,11 @@ async function listarPagamentos(req, res) {
 
     if (status === "pago") filtros.push("p.pago = true");
     if (status === "pendente") filtros.push("p.pago = false");
+
+    if (tipo) {
+  filtros.push(`p.tipo = $${idx++}`);
+  params.push(tipo);
+}
 
     const where = filtros.length ? `WHERE ${filtros.join(" AND ")}` : "";
 
