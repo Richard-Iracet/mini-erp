@@ -253,11 +253,7 @@ if (tipoPagamento === "mensalidade" && (!turmaId || !mes || !ano)) {
   function abrirEdicao(p) {
   setEditando(p);
   setEditValor(String(valorExibicao(p)));
-  setEditData(
-  p.data_pagamento
-    ? p.data_pagamento.split("T")[0]
-    : ""
-);
+  setEditData(p.data_pagamento || "");
 }
 
 
