@@ -24,6 +24,7 @@ export default function Pagamentos() {
   const [fAno, setFAno] = useState("");
   const [fTurma, setFTurma] = useState("");
   const [fStatus, setFStatus] = useState("");
+  const [fTipo, setFTipo] = useState("");
 
   const [editando, setEditando] = useState(null);
   const [editValor, setEditValor] = useState("");
@@ -310,6 +311,7 @@ if (tipoPagamento === "mensalidade" && (!turmaId || !mes || !ano)) {
     if (fAno) filtros.ano = Number(fAno);
     if (fTurma) filtros.turma_id = Number(fTurma);
     if (fStatus) filtros.status = fStatus;
+    if (fTipo) filtros.tipo = fTipo;
 
     carregarPagamentos(filtros);
 
@@ -325,7 +327,9 @@ if (tipoPagamento === "mensalidade" && (!turmaId || !mes || !ano)) {
     setFAno("");
     setFTurma("");
     setFStatus("");
+    setFTipo("");
     carregarPagamentos();
+    
     showToast("Filtros limpos", "success");
   }
 
@@ -385,6 +389,15 @@ if (tipoPagamento === "mensalidade" && (!turmaId || !mes || !ano)) {
             <option value="pendente">Pendentes</option>
             <option value="pago">Pagos</option>
           </select>
+          <select
+  value={fTipo}
+  onChange={(e) => setFTipo(e.target.value)}
+  className="pagamentos-select-tipo"
+>
+  <option value="">Todos os tipos</option>
+  <option value="mensalidade">Mensalidade</option>
+  <option value="matricula">Matrícula</option>
+</select>
 
           <button onClick={aplicarFiltros}>Filtrar</button>
           <button onClick={limparFiltros}>Limpar</button>
